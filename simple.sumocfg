@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <input>
+        <net-file value="simple_net.xml"/>
+        <route-files value="mixed_rou.xml"/>
+        <additional-files value="vtypes.add.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <step-length value="0.5"/>
+        <end value="3600"/>
+    </time>
+</configuration>

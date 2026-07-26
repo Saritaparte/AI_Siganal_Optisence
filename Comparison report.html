@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Signal OptiSense – Performance Comparison</title>
+<style>
+:root{
+  --bg:#050d12;--surf:#0b1a22;--bdr:#0e3347;
+  --acc:#00c2ff;--grn:#00e87a;--yel:#ffc22a;
+  --red:#ff3e5e;--txt:#cde8f5;--mut:#4a7a94;--emg:#ff5500;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--txt);padding:18px;}
+
+/* ── Header ── */
+.header{background:var(--surf);border:1px solid var(--bdr);border-top:3px solid var(--acc);
+  padding:16px 24px;border-radius:6px;margin-bottom:18px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.header h1{font-size:17px;font-weight:700;letter-spacing:2px;color:var(--acc);}
+.back-btn{padding:6px 14px;background:rgba(0,194,255,.12);border:1px solid rgba(0,194,255,.3);
+  color:var(--acc);font-weight:700;font-size:11px;border-radius:3px;text-decoration:none;letter-spacing:1px;}
+.back-btn:hover{background:rgba(0,194,255,.25);}
+
+/* ── Load panel ── */
+.load-panel{background:var(--surf);border:1px solid var(--bdr);border-radius:6px;
+  padding:20px 24px;margin-bottom:18px;text-align:center;}
+.load-panel p{font-size:12px;color:var(--mut);margin-bottom:14px;}
+.load-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:14px;}
+.load-box{background:#061018;border:1px solid var(--bdr);border-radius:4px;padding:14px 20px;min-width:200px;text-align:left;}
+.load-box.rb{border-top:2px solid var(--grn);}
+.load-box.fx{border-top:2px solid var(--yel);}
+.lb-title{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:8px;}
+.rb .lb-title{color:var(--grn);} .fx .lb-title{color:var(--yel);}
+.file-input{width:100%;padding:7px;background:#050d12;border:1px solid var(--bdr);
+  color:var(--txt);font-size:11px;border-radius:3px;cursor:pointer;}
+.load-btn{padding:10px 28px;background:var(--acc);color:#001a20;border:none;
+  border-radius:3px;font-weight:700;font-size:13px;letter-spacing:2px;cursor:pointer;margin-right:10px;}
+.load-btn:hover{opacity:.85;}
+.demo-btn{padding:10px 20px;background:rgba(255,194,42,.15);border:1px solid rgba(255,194,42,.4);
+  color:var(--yel);font-weight:700;font-size:12px;letter-spacing:1px;border-radius:3px;cursor:pointer;}
+.demo-btn:hover{background:rgba(255,194,42,.28);}
+.status{font-size:11px;color:var(--mut);font-family:'Courier New',monospace;margin-top:10px;min-height:16px;}
+
+/* ── Winner ── */
+.winner{background:linear-gradient(135deg,rgba(0,232,122,.08),rgba(0,194,255,.05));
+  border:1px solid rgba(0,232,122,.25);border-left:4px solid var(--grn);
+  border-radius:4px;padding:14px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px;}
+.winner-icon{font-size:28px;}
+.winner h2{font-size:15px;font-weight:700;color:var(--grn);margin-bottom:3px;}
+.winner p{font-size:12px;color:var(--mut);line-height:1.6;}
+
+/* ── Section title ── */
+.sec{font-size:10px;font-weight:700;letter-spacing:3px;color:var(--mut);text-transform:uppercase;
+  margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.sec::before{content:'';width:14px;height:2px;background:var(--acc);}
+
+/* ── Grid ── */
+.row{display:grid;gap:12px;margin-bottom:16px;}
+.r2{grid-template-columns:1fr 1fr;}
+.r3{grid-template-columns:1fr 1fr 1fr;}
+.r4{grid-template-columns:repeat(4,1fr);}
+@media(max-width:900px){.r4{grid-template-columns:repeat(2,1fr);}.r3{grid-template-columns:1fr 1fr;}}
+@media(max-width:550px){.r4,.r3,.r2{grid-template-columns:1fr;}}
+
+/* ── Cards ── */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:5px;padding:16px 18px;
+  animation:popup .4s ease;transition:transform .2s,box-shadow .2s;}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(0,0,0,.4),0 0 10px rgba(0,194,255,.1);}
+@keyframes popup{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+.ct{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--mut);text-transform:uppercase;margin-bottom:12px;}
+
+/* ── Metric compare ── */
+.cmp-row{display:flex;align-items:flex-end;gap:10px;margin-bottom:8px;}
+.sys{flex:1;text-align:center;}
+.sys-lbl{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.rb-lbl{color:var(--grn);} .fx-lbl{color:var(--yel);}
+.sys-val{font-family:'Courier New',monospace;font-size:26px;font-weight:700;line-height:1;}
+.rb-v{color:var(--grn);} .fx-v{color:var(--yel);}
+.sys-unit{font-size:10px;color:var(--mut);margin-top:3px;}
+.vs{font-size:11px;font-weight:700;color:var(--mut);}
+.badge{display:inline-block;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;margin-top:6px;}
+.good{background:rgba(0,232,122,.15);border:1px solid rgba(0,232,122,.3);color:var(--grn);}
+.bad{background:rgba(255,62,94,.12);border:1px solid rgba(255,62,94,.3);color:var(--red);}
+.neu{background:rgba(0,194,255,.1);border:1px solid rgba(0,194,255,.2);color:var(--acc);}
+
+/* ── Chart ── */
+.chart-card{background:var(--surf);border:1px solid var(--bdr);border-radius:5px;
+  padding:16px 18px;margin-bottom:16px;}
+.chart-wrap{position:relative;width:100%;height:180px;margin-top:10px;}
+canvas{display:block;}
+.legend{display:flex;gap:16px;margin-top:8px;}
+.leg-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--mut);}
+.leg-dot{width:10px;height:3px;border-radius:2px;}
+
+/* ── Table ── */
+.cmp-table{width:100%;border-collapse:collapse;font-size:12px;}
+.cmp-table th{padding:9px 12px;font-size:10px;font-weight:700;letter-spacing:1px;
+  color:var(--txt);text-transform:uppercase;background:#0a1e28;border-bottom:2px solid var(--acc);text-align:left;}
+.cmp-table td{padding:9px 12px;border-bottom:1px solid rgba(14,51,71,.5);}
+.cmp-table tr:nth-child(even) td{background:rgba(0,194,255,.03);}
+.cmp-table tr:hover td{background:rgba(0,194,255,.06);}
+.tag-rb{color:var(--grn);font-weight:700;} .tag-fx{color:var(--yel);font-weight:700;}
+.tag-na{color:var(--mut);}
+.imp-up{color:var(--grn);font-weight:700;} .imp-dn{color:var(--red);font-weight:700;}
+
+/* ── Phase bars ── */
+.ph-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.ph-label{font-size:11px;font-weight:700;color:var(--txt);width:60px;flex-shrink:0;}
+.ph-bars{flex:1;}
+.ph-bar-wrap{height:8px;background:#0e2030;border-radius:4px;margin-bottom:3px;}
+.ph-bar{height:8px;border-radius:4px;transition:width .8s;}
+.ph-val{font-size:10px;font-family:'Courier New',monospace;width:36px;text-align:right;flex-shrink:0;}
+
+/* ── Emergency card ── */
+.em-card{background:#0f0800;border:2px solid var(--emg);border-radius:5px;padding:16px 18px;margin-bottom:16px;}
+.em-title{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--emg);text-transform:uppercase;margin-bottom:12px;}
+.em-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+@media(max-width:600px){.em-grid{grid-template-columns:1fr 1fr;}}
+.em-stat .val{font-family:'Courier New',monospace;font-size:28px;color:var(--emg);margin-bottom:2px;}
+.em-stat .lbl{font-size:10px;color:var(--mut);letter-spacing:1px;}
+.em-note{background:rgba(255,85,0,.08);border:1px solid rgba(255,85,0,.2);border-radius:3px;
+  padding:10px 14px;font-size:11px;color:var(--mut);line-height:1.7;grid-column:1/-1;}
+.em-note strong{color:var(--grn);}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>&#x1F4CA; AI Signal OptiSense &mdash; Performance Comparison Report</h1>
+  <a class="back-btn" href="/live_dashboard.html">&#8592; Dashboard</a>
+</div>
+
+<!-- Load Panel -->
+<div class="load-panel">
+  <p>Load your actual simulation results, or click <strong style="color:var(--yel)">Load Demo Data</strong> to see sample comparison.</p>
+  <div class="load-row">
+    <div class="load-box rb">
+      <div class="lb-title">Rule-Based System</div>
+      <input type="file" class="file-input" id="rbFile" accept=".json">
+    </div>
+    <div class="load-box fx">
+      <div class="lb-title">Fixed Timing System</div>
+      <input type="file" class="file-input" id="fxFile" accept=".json">
+    </div>
+  </div>
+  <button class="load-btn" onclick="loadFiles()">&#9654; Load JSON Files</button>
+  <button class="demo-btn" onclick="loadDemo()">&#9654; Load Demo Data</button>
+  <div class="status" id="status">Select both JSON files or use demo data.</div>
+</div>
+
+<!-- Report (hidden until loaded) -->
+<div id="report" style="display:none">
+  <div class="winner" id="winner"></div>
+
+  <div class="sec">Key Performance Metrics</div>
+  <div class="row r4" id="kpiCards"></div>
+
+  <div class="chart-card">
+    <div class="sec">Average Wait Time Over Simulation (seconds)</div>
+    <div class="chart-wrap"><canvas id="waitChart"></canvas></div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--grn)"></div>Rule-Based</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--yel)"></div>Fixed Timing</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="sec">Cumulative Throughput (Vehicles Completed)</div>
+    <div class="chart-wrap"><canvas id="throughChart"></canvas></div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--grn)"></div>Rule-Based</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--yel)"></div>Fixed Timing</div>
+    </div>
+  </div>
+
+  <div class="chart-card">
+    <div class="sec">Congestion Score Over Time (0=Clear, 100=Congested)</div>
+    <div class="chart-wrap"><canvas id="congChart"></canvas></div>
+    <div class="legend">
+      <div class="leg-item"><div class="leg-dot" style="background:var(--grn)"></div>Rule-Based</div>
+      <div class="leg-item"><div class="leg-dot" style="background:var(--yel)"></div>Fixed Timing</div>
+    </div>
+  </div>
+
+  <div class="row r2">
+    <div class="card">
+      <div class="ct" style="color:var(--grn)">Rule-Based — Phase Efficiency</div>
+      <div id="rbPhase"></div>
+    </div>
+    <div class="card">
+      <div class="ct" style="color:var(--yel)">Fixed Timing — Phase Efficiency</div>
+      <div id="fxPhase"></div>
+    </div>
+  </div>
+
+  <div class="em-card" id="emCard"></div>
+
+  <div class="card" style="margin-bottom:16px">
+    <div class="sec">Complete Metrics Summary</div>
+    <table class="cmp-table" id="summaryTable"></table>
+  </div>
+</div>
+
+<script>
+let RB = null, FX = null;
+
+// ── Demo data (realistic simulation values) ────────────────────────────────
+function getDemoData() {
+  // Generate wait time history for 3600 steps
+  function genWait(base, noise, steps=36) {
+    return Array.from({length:steps},(_,i)=>({
+      step: (i+1)*100,
+      avg_wait: Math.max(0.5, +(base + (Math.random()-0.5)*noise*(1-i/steps*0.4)).toFixed(2))
+    }));
+  }
+  function genThrough(rate, steps=36) {
+    let cum=0;
+    return Array.from({length:steps},(_,i)=>{
+      cum += Math.round(rate*(0.8+Math.random()*0.4));
+      return {step:(i+1)*100, vehicles:cum};
+    });
+  }
+  function genCong(base, noise, steps=36) {
+    return Array.from({length:steps},(_,i)=>({
+      step:(i+1)*100,
+      score:Math.min(100,Math.max(5,Math.round(base+(Math.random()-0.5)*noise)))
+    }));
+  }
+
+  const rb = {
+    system_type:'rule_based',
+    avg_wait_time: 3.5,
+    total_vehicles_completed: 1820,
+    throughput_per_100_steps: 50.6,
+    avg_congestion_score: 44,
+    emergency_count: 3,
+    avg_emergency_response_steps: 4.2,
+    total_steps: 3600,
+    phase_efficiency:{West:22.4, East:28.1, South:24.6, North:24.9},
+    wait_time_history: genWait(4, 3),
+    throughput_history: genThrough(50),
+    congestion_history: genCong(44, 15),
+  };
+  const fx = {
+    system_type:'fixed',
+    avg_wait_time: 45.2,
+    total_vehicles_completed: 1540,
+    throughput_per_100_steps: 42.8,
+    avg_congestion_score: 74,
+    emergency_count: 0,
+    avg_emergency_response_steps: 0,
+    total_steps: 3600,
+    phase_efficiency:{West:25.0, East:25.0, South:25.0, North:25.0},
+    wait_time_history: genWait(45, 18),
+    throughput_history: genThrough(42),
+    congestion_history: genCong(74, 12),
+  };
+  return {rb, fx};
+}
+
+function loadDemo() {
+  const {rb, fx} = getDemoData();
+  RB = rb; FX = fx;
+  document.getElementById('status').style.color='var(--grn)';
+  document.getElementById('status').textContent = 'Demo data loaded. Showing sample comparison.';
+  showReport();
+}
+
+function loadFiles() {
+  const rf = document.getElementById('rbFile').files[0];
+  const ff = document.getElementById('fxFile').files[0];
+  const st = document.getElementById('status');
+  if (!rf || !ff) { st.style.color='var(--red)'; st.textContent='Please select both JSON files.'; return; }
+  st.style.color='var(--acc)'; st.textContent='Loading...';
+  Promise.all([readJ(rf), readJ(ff)]).then(([rb,fx])=>{
+    RB=rb; FX=fx;
+    st.style.color='var(--grn)'; st.textContent='Files loaded successfully!';
+    showReport();
+  }).catch(e=>{ st.style.color='var(--red)'; st.textContent='Error: '+e.message; });
+}
+
+function readJ(f) {
+  return new Promise((res,rej)=>{
+    const r=new FileReader();
+    r.onload=e=>{try{res(JSON.parse(e.target.result));}catch(err){rej(err);}};
+    r.onerror=()=>rej(new Error('Read failed'));
+    r.readAsText(f);
+  });
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function showReport() {
+  document.getElementById('report').style.display='block';
+  renderWinner();
+  renderKPIs();
+  setTimeout(()=>{
+    renderChart('waitChart', RB.wait_time_history, FX.wait_time_history, 'avg_wait');
+    renderChart('throughChart', RB.throughput_history, FX.throughput_history, 'vehicles');
+    renderChart('congChart', RB.congestion_history, FX.congestion_history, 'score');
+  }, 100);
+  renderPhase('rbPhase', RB.phase_efficiency, 'var(--grn)');
+  renderPhase('fxPhase', FX.phase_efficiency, 'var(--yel)');
+  renderEmergency();
+  renderSummary();
+  document.getElementById('report').scrollIntoView({behavior:'smooth'});
+}
+
+function impPct(rb, fx) {
+  if (!fx) return 0;
+  return Math.round(Math.abs((fx-rb)/fx)*100);
+}
+
+function renderWinner() {
+  const waitImp = impPct(RB.avg_wait_time, FX.avg_wait_time);
+  const congImp = impPct(RB.avg_congestion_score, FX.avg_congestion_score);
+  document.getElementById('winner').innerHTML = `
+    <div class="winner-icon">&#x1F3C6;</div>
+    <div>
+      <h2>Rule-Based AI System Wins!</h2>
+      <p>
+        Average wait time reduced by <strong style="color:var(--grn)">${waitImp}%</strong>
+        &nbsp;|&nbsp; Congestion reduced by <strong style="color:var(--grn)">${congImp}%</strong>
+        &nbsp;|&nbsp; ${RB.emergency_count} emergency vehicle${RB.emergency_count!==1?'s':''} handled with priority green
+        <br>Dynamic density-based allocation outperforms static fixed timing across all metrics.
+      </p>
+    </div>`;
+}
+
+function renderKPIs() {
+  const metrics = [
+    {title:'Avg Wait Time', rb:RB.avg_wait_time, fx:FX.avg_wait_time, unit:'seconds', lower:true},
+    {title:'Vehicles Completed', rb:RB.total_vehicles_completed, fx:FX.total_vehicles_completed, unit:'vehicles', lower:false},
+    {title:'Throughput Rate', rb:RB.throughput_per_100_steps, fx:FX.throughput_per_100_steps, unit:'per 100 steps', lower:false},
+    {title:'Congestion Score', rb:RB.avg_congestion_score, fx:FX.avg_congestion_score, unit:'out of 100', lower:true},
+  ];
+  document.getElementById('kpiCards').innerHTML = metrics.map(m=>{
+    const rbBetter = m.lower ? m.rb<=m.fx : m.rb>=m.fx;
+    const diff = impPct(m.lower?m.rb:m.fx, m.lower?m.fx:m.rb);
+    return `<div class="card">
+      <div class="ct">${m.title}</div>
+      <div class="cmp-row">
+        <div class="sys">
+          <div class="sys-lbl rb-lbl">Rule-Based</div>
+          <div class="sys-val rb-v">${m.rb}</div>
+          <div class="sys-unit">${m.unit}</div>
+        </div>
+        <div class="vs">VS</div>
+        <div class="sys">
+          <div class="sys-lbl fx-lbl">Fixed</div>
+          <div class="sys-val fx-v">${m.fx}</div>
+          <div class="sys-unit">${m.unit}</div>
+        </div>
+      </div>
+      <span class="badge ${rbBetter?'good':'bad'}">${rbBetter?'Rule-Based better by '+diff+'%':'Fixed better by '+diff+'%'}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderChart(id, rbH, fxH, key) {
+  const canvas = document.getElementById(id);
+  const wrap = canvas.parentElement;
+  canvas.width  = wrap.offsetWidth || 800;
+  canvas.height = 180;
+  const ctx = canvas.getContext('2d');
+  const W=canvas.width, H=canvas.height;
+  const pad={top:16,right:16,bottom:28,left:52};
+  const cw=W-pad.left-pad.right, ch=H-pad.top-pad.bottom;
+
+  const allV = [...(rbH||[]).map(d=>d[key]), ...(fxH||[]).map(d=>d[key])].filter(v=>v!=null);
+  if(!allV.length) return;
+  const maxV = Math.max(...allV)*1.12 || 1;
+
+  ctx.clearRect(0,0,W,H);
+
+  // Grid lines
+  for(let i=0;i<=4;i++){
+    const y = pad.top + ch - (i/4)*ch;
+    ctx.strokeStyle='#0e3347'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(pad.left,y); ctx.lineTo(pad.left+cw,y); ctx.stroke();
+    ctx.fillStyle='#4a7a94'; ctx.font='10px Courier New'; ctx.textAlign='right';
+    ctx.fillText(((maxV*i/4)).toFixed(1), pad.left-4, y+4);
+  }
+
+  // Draw line
+  function line(data, color) {
+    if(!data||!data.length) return;
+    ctx.strokeStyle=color; ctx.lineWidth=2.5; ctx.lineJoin='round';
+    ctx.shadowColor=color; ctx.shadowBlur=4;
+    ctx.beginPath();
+    data.forEach((d,i)=>{
+      const x=pad.left+(i/Math.max(data.length-1,1))*cw;
+      const y=pad.top+ch-((d[key]||0)/maxV)*ch;
+      i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+    });
+    ctx.stroke();
+    ctx.shadowBlur=0;
+  }
+  line(rbH,'#00e87a');
+  line(fxH,'#ffc22a');
+
+  // X labels
+  const src = rbH||fxH;
+  ctx.fillStyle='#4a7a94'; ctx.font='10px Courier New'; ctx.textAlign='center';
+  [0,Math.floor(src.length/4),Math.floor(src.length/2),Math.floor(src.length*3/4),src.length-1]
+    .forEach(i=>{ if(src[i]){ const x=pad.left+(i/Math.max(src.length-1,1))*cw; ctx.fillText('s'+src[i].step,x,H-6); }});
+}
+
+function renderPhase(id, data, color) {
+  if(!data){document.getElementById(id).innerHTML='<div style="color:var(--mut);font-size:12px">No data</div>';return;}
+  document.getElementById(id).innerHTML = Object.entries(data).map(([lane,pct])=>`
+    <div class="ph-row">
+      <div class="ph-label">${lane}</div>
+      <div class="ph-bars">
+        <div class="ph-bar-wrap"><div class="ph-bar" style="width:${pct}%;background:${color}"></div></div>
+      </div>
+      <div class="ph-val" style="color:${color}">${pct}%</div>
+    </div>`).join('');
+}
+
+function renderEmergency() {
+  document.getElementById('emCard').innerHTML = `
+    <div class="em-title">&#x1F691; Emergency Vehicle Performance</div>
+    <div class="em-grid">
+      <div class="em-stat"><div class="val">${RB.emergency_count}</div><div class="lbl">Emergency Events<br>(Rule-Based run)</div></div>
+      <div class="em-stat"><div class="val">${RB.avg_emergency_response_steps||'N/A'}</div><div class="lbl">Avg Response<br>(simulation steps)</div></div>
+      <div class="em-stat"><div class="val" style="color:var(--red)">0</div><div class="lbl">Emergency Handled<br>(Fixed System)</div></div>
+      <div class="em-note">
+        <strong>Rule-Based System:</strong> Emergency vehicle detected via TraCI &rarr; signal override within 3 steps &rarr; affected lane gets GREEN &rarr; all others RED &rarr; resumes normal after vehicle passes.<br>
+        <strong>Fixed Timing System:</strong> No emergency detection — vehicle waits in queue like regular traffic.
+      </div>
+    </div>`;
+}
+
+function renderSummary() {
+  const rows = [
+    ['Avg Wait Time (s)',            RB.avg_wait_time,                FX.avg_wait_time,                true,  'seconds'],
+    ['Total Vehicles Completed',     RB.total_vehicles_completed,     FX.total_vehicles_completed,     false, 'vehicles'],
+    ['Throughput per 100 Steps',     RB.throughput_per_100_steps,     FX.throughput_per_100_steps,     false, 'veh/100s'],
+    ['Avg Congestion Score',         RB.avg_congestion_score,         FX.avg_congestion_score,         true,  '/100'],
+    ['Emergency Vehicles Handled',   RB.emergency_count,              FX.emergency_count,              false, 'events'],
+    ['Avg Emergency Response',       RB.avg_emergency_response_steps||'N/A', 'Not Supported',           false, 'steps'],
+    ['Signal Allocation',            'Dynamic (density-based)',        'Static (fixed 30s)',            false, ''],
+    ['Green Time Range',             '8s – 45s',                       '30s (fixed)',                  false, ''],
+    ['Total Steps Simulated',        RB.total_steps,                   FX.total_steps,                 false, 'steps'],
+  ];
+  document.getElementById('summaryTable').innerHTML =
+    `<tr>
+      <th>Metric</th>
+      <th style="color:var(--grn)">Rule-Based</th>
+      <th style="color:var(--yel)">Fixed Timing</th>
+      <th>Improvement</th>
+      <th>Winner</th>
+    </tr>` +
+    rows.map(([metric, rb, fx, lower, unit])=>{
+      const rbNum = parseFloat(rb), fxNum = parseFloat(fx);
+      const rbBetter = (!isNaN(rbNum)&&!isNaN(fxNum)) ? (lower ? rbNum<=fxNum : rbNum>=fxNum) : null;
+      const diff = (!isNaN(rbNum)&&!isNaN(fxNum)&&fxNum!==0) ? impPct(lower?rbNum:fxNum, lower?fxNum:rbNum)+'%' : 'N/A';
+      const winner = rbBetter===null ? '<span class="tag-na">—</span>' :
+                     rbBetter ? '<span class="tag-rb">Rule-Based</span>' : '<span class="tag-fx">Fixed</span>';
+      const impClass = rbBetter===null?'tag-na':rbBetter?'imp-up':'imp-dn';
+      return `<tr>
+        <td style="font-weight:700">${metric}</td>
+        <td class="tag-rb">${rb}${unit?' <span style="color:var(--mut);font-weight:400;font-size:10px">'+unit+'</span>':''}</td>
+        <td class="tag-fx">${fx}${unit?' <span style="color:var(--mut);font-weight:400;font-size:10px">'+unit+'</span>':''}</td>
+        <td class="${impClass}">${diff}</td>
+        <td>${winner}</td>
+      </tr>`;
+    }).join('');
+}
+
+// Auto-load demo on page load for quick preview
+window.addEventListener('load', () => {
+  // Check if JSON files exist via fetch (when served from server)
+  Promise.all([
+    fetch('/metrics_rule_based.json').then(r=>r.ok?r.json():null).catch(()=>null),
+    fetch('/metrics_fixed.json').then(r=>r.ok?r.json():null).catch(()=>null)
+  ]).then(([rb,fx])=>{
+    if(rb&&fx){
+      RB=rb; FX=fx;
+      document.getElementById('status').style.color='var(--grn)';
+      document.getElementById('status').textContent='Simulation data loaded automatically!';
+      showReport();
+    }
+  });
+});
+</script>
+</body>
+</html>

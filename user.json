@@ -1,0 +1,28 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "admin",
+      "password": "admin123",
+      "role": "Administrator",
+      "name": "Admin User",
+      "avatar": "AU"
+    },
+    {
+      "id": 2,
+      "username": "operator",
+      "password": "op2024",
+      "role": "Traffic Operator",
+      "name": "Operator One",
+      "avatar": "O1"
+    },
+    {
+      "id": 3,
+      "username": "viewer",
+      "password": "view123",
+      "role": "Viewer",
+      "name": "Guest Viewer",
+      "avatar": "GV"
+    }
+  ]
+}

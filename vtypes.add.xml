@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<additional>
+    <vType id="two_wheeler" vClass="motorcycle" color="0,0,0"       accel="2.0" decel="4.5" length="1.5"  maxSpeed="17.0"/>
+    <vType id="car"         vClass="passenger"  color="1,0,0"       accel="2.6" decel="4.5" length="4.5"  maxSpeed="20.0"/>
+    <vType id="rickshaw"    vClass="passenger"  color="0.5,0.25,0"  accel="1.5" decel="3.5" length="2.0"  maxSpeed="12.0"/>
+    <vType id="truck"       vClass="truck"      color="0.4,0.4,0.4" accel="1.2" decel="3.5" length="12.0" maxSpeed="15.0"/>
+    <vType id="bus"         vClass="bus"        color="0,0,1"       accel="1.2" decel="3.5" length="12.0" maxSpeed="15.0"/>
+    <vType id="ambulance"   vClass="emergency"  color="1,1,1"       accel="4.0" decel="7.0" length="7.0"  maxSpeed="30.0" guiShape="emergency"  speedFactor="2.0" width="3.5"/>
+    <vType id="police"      vClass="emergency"  color="0,0,1"       accel="4.0" decel="7.0" length="6.0"  maxSpeed="28.0" guiShape="police"     speedFactor="2.0" width="3.0"/>
+    <vType id="firebrigade" vClass="emergency"  color="1,0.3,0"     accel="3.5" decel="6.0" length="9.0"  maxSpeed="25.0" guiShape="emergency"  speedFactor="1.8" width="3.5"/>
+</additional>

@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>AI Signal OptiSense – Rule-Based Dashboard</title>
+<style>
+  .body{
+    outline: auto var(--acc) ;
+    outline-offset: 6px;
+}
+@import url('https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+:root{
+  --bg:#050d12;--surf:#0b1a22;--bdr:#0e3347;--acc:#00c2ff;--grn:#00e87a;--yel:#ffc22a;--red:#ff3e5e;--txt:#cde8f5;--mut:#4a7a94;--emg:#ff5500;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Rajdhani',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;padding:14px;}
+.topbar{display:flex;align-items:center;justify-content:space-between;background:var(--surf);border:1px solid var(--bdr);border-top:3px solid var(--acc);padding:13px 22px;border-radius:4px;margin-bottom:14px;}
+.topbar h1{font-size:19px;font-weight:700;letter-spacing:2px;color:var(--acc);}
+.badge{display:flex;align-items:center;gap:8px;padding:5px 14px;border-radius:3px;font-weight:700;font-size:12px;letter-spacing:1px;background:#0a1e28;border:1px solid var(--mut);}
+.badge.on{border-color:var(--grn);color:var(--grn);}.badge.off{color:var(--mut);}
+.dot{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.row{display:grid;gap:12px;margin-bottom:12px;}
+.r4{grid-template-columns:repeat(4,1fr);}
+.r2{grid-template-columns:1fr 1fr;}
+.r3{grid-template-columns:1fr 1fr 1fr;}
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:4px;padding:16px 18px;}
+.ct{font-size:10px;font-weight:700;letter-spacing:2px;color:var(--mut);text-transform:uppercase;margin-bottom:10px;}
+.big{font-family:'Share Tech Mono',monospace;font-size:40px;color:var(--acc);line-height:1;}
+.sub{font-size:10px;color:var(--mut);margin-top:3px;}
+.btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.btn{padding:8px 20px;border:none;border-radius:3px;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;transition:opacity .15s;}
+.btn:hover{opacity:.8;}
+.bg{background:var(--grn);color:#001a0e;}.br{background:var(--red);color:#fff;}.ba{background:var(--acc);color:#001a20;}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+/* Junction */
+.jgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;}
+.jcard{background:#0a1a24;border:1px solid var(--bdr);border-radius:4px;padding:11px;text-align:center;}
+.jcard.clear{border-color:var(--grn);}.jcard.active{border-color:var(--yel);}.jcard.congested{border-color:var(--red);}.jcard.emergency{border-color:var(--emg);box-shadow:0 0 10px var(--emg);}
+.jcid{font-weight:700;font-size:14px;}.jcv{font-size:11px;color:var(--mut);margin-top:2px;}
+.jcs{font-size:10px;margin-top:3px;font-weight:700;letter-spacing:1px;text-transform:uppercase;}
+.jcard.clear .jcs{color:var(--grn);}.jcard.active .jcs{color:var(--yel);}.jcard.congested .jcs{color:var(--red);}.jcard.emergency .jcs{color:var(--emg);}
+/* Lane panel */
+.lane-hdr{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--acc);margin-bottom:6px;padding-bottom:4px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.lane-col{display:grid;grid-template-columns:10px 1fr 28px 40px 44px 52px;gap:4px;font-size:9px;color:var(--mut);letter-spacing:1px;padding:0 6px 4px;text-transform:uppercase;}
+.lane-row{display:grid;grid-template-columns:10px 1fr 28px 40px 44px 52px;gap:4px;align-items:center;padding:5px 6px;margin-bottom:3px;background:#0a1a24;border-radius:3px;border-left:3px solid var(--mut);font-family:'Share Tech Mono',monospace;font-size:11px;}
+.lane-row.green{border-left-color:var(--grn);}.lane-row.yellow{border-left-color:var(--yel);}.lane-row.red{border-left-color:var(--red);}
+.sdot{width:8px;height:8px;border-radius:50%;}
+.lane-row.green .sdot{background:var(--grn);box-shadow:0 0 5px var(--grn);}
+.lane-row.yellow .sdot{background:var(--yel);box-shadow:0 0 5px var(--yel);}
+.lane-row.red .sdot{background:var(--red);}
+.lid{font-size:10px;color:var(--txt);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lv{color:var(--mut);text-align:right;}.la{color:var(--yel);text-align:right;}.lg{color:var(--acc);text-align:right;}
+.lbw{height:4px;background:#0e2030;border-radius:2px;}.lbar{height:4px;border-radius:2px;transition:width .5s;}
+.embadge{background:var(--emg);color:#fff;font-size:9px;padding:2px 6px;border-radius:2px;letter-spacing:1px;font-weight:700;animation:pulse 1s infinite;}
+/* Emergency spawn panel */
+.em-panel{background:#0f0800;border:2px solid var(--emg);border-radius:6px;padding:16px 18px;margin-bottom:12px;}
+.em-pt{font-size:11px;font-weight:700;letter-spacing:2px;color:var(--emg);text-transform:uppercase;margin-bottom:12px;}
+.em-sub{font-size:10px;color:var(--mut);margin-bottom:6px;letter-spacing:1px;text-transform:uppercase;}
+.dir-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.dir-btn{padding:10px 4px;border:1px solid #552200;border-radius:4px;background:#1a0800;color:#cc4400;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;cursor:pointer;text-align:center;transition:all .15s;}
+.dir-btn:hover,.dir-btn.active{background:var(--emg);color:#fff;border-color:var(--emg);box-shadow:0 0 10px var(--emg);}
+.vtype-row{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+.vt-btn{padding:7px 16px;border:1px solid #333;border-radius:3px;background:#0a1a24;color:var(--txt);font-family:'Rajdhani',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all .15s;}
+.vt-btn:hover,.vt-btn.active{border-color:var(--emg);color:var(--emg);background:#1a0800;}
+.spawn-btn{width:100%;padding:13px;border:none;border-radius:4px;background:linear-gradient(135deg,#aa1800,var(--emg));color:#fff;font-family:'Rajdhani',sans-serif;font-weight:700;font-size:15px;letter-spacing:2px;cursor:pointer;box-shadow:0 0 20px rgba(255,85,0,.35);transition:all .2s;}
+.spawn-btn:hover{box-shadow:0 0 30px rgba(255,85,0,.6);transform:translateY(-1px);}
+.spawn-btn:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+.sfb{margin-top:8px;font-size:11px;font-family:'Share Tech Mono',monospace;color:var(--emg);min-height:16px;text-align:center;}
+/* Sim-not-running warning */
+.em-warn{display:none;background:rgba(255,62,94,0.1);border:1px solid rgba(255,62,94,0.4);border-radius:4px;padding:8px 12px;margin-bottom:10px;font-size:11px;color:var(--red);font-weight:700;letter-spacing:1px;}
+/* Vehicles */
+.vlist{max-height:200px;overflow-y:auto;}
+.vitem{display:flex;justify-content:space-between;align-items:center;padding:6px 10px;background:#0a1a24;border-radius:3px;margin-bottom:3px;border-left:3px solid var(--bdr);}
+.vitem.em{border-left-color:var(--emg);box-shadow:0 0 6px rgba(255,85,0,0.3);}
+.vid{font-size:12px;}.vwt{font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--acc);}
+/* Log */
+.logbox{background:#020c12;border:1px solid var(--bdr);border-radius:3px;padding:10px;max-height:200px;overflow-y:auto;font-family:'Share Tech Mono',monospace;font-size:11px;line-height:1.8;}
+.li{color:#4a9eb5;}.ls{color:var(--grn);}.lw{color:var(--yel);}.le{color:var(--red);}
+/* Connection */
+#conn{position:fixed;bottom:14px;right:14px;padding:7px 14px;border-radius:3px;font-size:11px;font-weight:700;background:var(--surf);border:1px solid var(--bdr);letter-spacing:1px;}
+#conn.on{border-color:var(--grn);color:var(--grn);}#conn.off{border-color:var(--red);color:var(--red);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:var(--bg);}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:2px;}
+/* ── Outline: single accent ring around every element ── */
+.topbar,.card,.em-panel,.jcard{
+  outline:1px solid rgba(0,194,255,0.18);
+  outline-offset:0px;
+}
+.em-panel{
+  outline-color:rgba(255,85,0,0.35);
+}
+/* ── Layered shadow: dark base + soft cyan glow ── */
+.topbar,.card,.jcard{
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.55),
+    0 4px 12px rgba(0,0,0,0.45),
+    0 0 0 1px rgba(0,194,255,0.06),
+    inset 0 1px 0 rgba(0,194,255,0.05);
+}
+.em-panel{
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.55),
+    0 4px 14px rgba(0,0,0,0.45),
+    0 0 16px rgba(255,85,0,0.12),
+    0 0 0 1px rgba(255,85,0,0.08),
+    inset 0 1px 0 rgba(255,85,0,0.06);
+}
+/* ── Popup entry animation ── */
+.topbar,.card,.em-panel,.jcard{
+  animation:popup .4s ease both;
+  transition:transform .22s ease, box-shadow .22s ease, outline-color .22s ease;
+}
+/* ── Hover: lift + stronger glow ── */
+.topbar:hover,.card:hover,.em-panel:hover,.jcard:hover{
+  transform:translateY(-4px) scale(1.008);
+  outline-color:rgba(0,194,255,0.45);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.6),
+    0 8px 24px rgba(0,0,0,0.5),
+    0 0 20px rgba(0,194,255,0.14),
+    0 0 0 1px rgba(0,194,255,0.18),
+    inset 0 1px 0 rgba(0,194,255,0.08);
+}
+.em-panel:hover{
+  outline-color:rgba(255,85,0,0.7);
+  box-shadow:
+    0 2px 4px rgba(0,0,0,0.6),
+    0 8px 24px rgba(0,0,0,0.5),
+    0 0 24px rgba(255,85,0,0.22),
+    0 0 0 1px rgba(255,85,0,0.2),
+    inset 0 1px 0 rgba(255,85,0,0.08);
+}
+@keyframes popup{
+  0%{opacity:0;transform:scale(.92) translateY(16px);box-shadow:none;}
+  100%{opacity:1;transform:scale(1) translateY(0);}
+}
+</style>
+</head>
+<body>
+
+<section>
+  <div class="topbar">
+    <h1>🚦 AI SIGNAL OPTISENSE &nbsp;|&nbsp; RULE-BASED LIVE DASHBOARD</h1>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <div class="badge off" id="badge"><span class="dot"></span><span id="btext">OFFLINE</span></div>
+      <div id="userInfoBar" style="display:none;align-items:center;gap:8px;padding:5px 12px;background:#0a1e28;border:1px solid var(--bdr);border-radius:3px;">
+        <div id="userAvatar" style="width:26px;height:26px;border-radius:50%;background:rgba(0,194,255,0.15);border:1px solid rgba(0,194,255,0.3);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:var(--acc);font-family:'Share Tech Mono',monospace;"></div>
+        <div style="line-height:1.2;">
+          <div id="userName" style="font-size:12px;font-weight:700;color:var(--txt);"></div>
+          <div id="userRole" style="font-size:9px;color:var(--mut);letter-spacing:1px;"></div>
+        </div>
+        <button onclick="doLogout()" style="padding:4px 10px;background:rgba(255,62,94,0.15);border:1px solid rgba(255,62,94,0.4);color:var(--red);font-family:'Rajdhani',sans-serif;font-weight:700;font-size:11px;letter-spacing:1px;border-radius:3px;cursor:pointer;" onmouseover="this.style.background='rgba(255,62,94,0.3)'" onmouseout="this.style.background='rgba(255,62,94,0.15)'">⏏ LOGOUT</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats + Controls -->
+  <div class="row r4">
+    <div class="card"><div class="ct">Total Vehicles</div><div class="big" id="tv">0</div><div class="sub">active in network</div></div>
+    <div class="card"><div class="ct">Avg Wait Time</div><div class="big" id="aw">0.0</div><div class="sub">seconds per vehicle</div></div>
+    <div class="card"><div class="ct">Simulation Step</div><div class="big" id="ss">0</div><div class="sub">elapsed steps</div></div>
+    <div class="card">
+      <div class="ct">Controls</div>
+      <div class="btn-row">
+        <button class="btn bg" id="btnStart" onclick="startSim()">▶ START</button>
+        <button class="btn br" id="btnStop"  onclick="api('stop')" disabled>⏸ STOP</button>
+        <button class="btn ba" onclick="api('reset')">↺ RESET</button>
+      </div>
+      <div id="simStatus" style="font-size:10px;color:var(--mut);margin-top:8px;font-family:'Share Tech Mono',monospace;">Simulation not running</div>
+    </div>
+  </div>
+
+  <!-- Junction + Lane -->
+  <div class="row r2">
+    <div class="card"><div class="ct">Junction Status</div><div class="jgrid" id="jg"><div style="color:var(--mut);font-size:12px">Waiting...</div></div></div>
+    <div class="card"><div class="ct">Per-Lane Signal Allocation</div><div id="lp"><div style="color:var(--mut);font-size:12px">Waiting for TLS data...</div></div></div>
+  </div>
+
+  <!-- Emergency Spawn Panel -->
+  <div class="em-panel">
+    <div class="em-pt">🚑 Emergency Vehicle Spawn Control</div>
+    <div class="em-warn" id="emWarn">⚠ Start the simulation first before spawning an emergency vehicle!</div>
+
+    <div class="em-sub">Direction — Which direction should the vehicle come from?</div>
+    <div class="dir-grid">
+      <button class="dir-btn active" id="dir-north" onclick="selDir('north')">⬆ NORTH</button>
+      <button class="dir-btn"        id="dir-south" onclick="selDir('south')">⬇ SOUTH</button>
+      <button class="dir-btn"        id="dir-east"  onclick="selDir('east')"> ➡ EAST</button>
+      <button class="dir-btn"        id="dir-west"  onclick="selDir('west')"> ⬅ WEST</button>
+    </div>
+    <div class="em-sub">Vehicle Type</div>
+    <div class="vtype-row">
+      <button class="vt-btn active" id="vt-ambulance"   onclick="selVtype('ambulance')">🚑 Ambulance</button>
+      <button class="vt-btn"        id="vt-police"      onclick="selVtype('police')">🚓 Police</button>
+      <button class="vt-btn"        id="vt-firebrigade" onclick="selVtype('firebrigade')">🚒 Fire Brigade</button>
+    </div>
+    <button class="spawn-btn" id="spawnBtn" onclick="doSpawn()">🚨 SPAWN EMERGENCY VEHICLE</button>
+    <div class="sfb" id="sfb"></div>
+  </div>
+
+  <!-- Vehicles + Emergency Monitor + Log -->
+  <div class="row r3">
+    <div class="card">
+      <div class="ct">Active Vehicles (Top 10)</div>
+      <div class="vlist" id="vl"><div style="color:var(--mut);font-size:12px">No vehicles</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">Emergency Monitor</div>
+      <div id="ep"></div>
+    </div>
+    <div class="card">
+      <div class="ct">System Log</div>
+      <div class="logbox" id="lb">Waiting...</div>
+    </div>
+  </div>
+
+  <div id="conn" class="off">⚠ CONNECTING</div>
+</section>
+
+<script>
+const API = 'http://localhost:8080/api';
+let curDir = 'north', curVtype = 'ambulance';
+let simRunning = false;
+
+// ─── Auth Guard ───────────────────────────────────────────────────────────────
+(function() {
+  const raw = sessionStorage.getItem('ais_user');
+  if (!raw) { window.location.href = 'login.html'; return; }
+  try {
+    const user = JSON.parse(raw);
+    const bar = document.getElementById('userInfoBar');
+    bar.style.display = 'flex';
+    document.getElementById('userAvatar').textContent = user.avatar || user.username.substring(0,2).toUpperCase();
+    document.getElementById('userName').textContent   = user.name || user.username;
+    document.getElementById('userRole').textContent   = (user.role || 'USER').toUpperCase();
+  } catch(e) { window.location.href = 'login.html'; }
+})();
+
+function doLogout() {
+  if (confirm('Logout from AI Signal OptiSense?')) {
+    sessionStorage.removeItem('ais_user');
+    window.location.href = 'login.html';
+  }
+}
+
+// ─── Start Simulation from Dashboard ─────────────────────────────────────────
+async function startSim() {
+  const btn = document.getElementById('btnStart');
+  const status = document.getElementById('simStatus');
+  btn.disabled = true;
+  btn.textContent = '⏳ Starting...';
+  status.textContent = 'Launching SUMO simulation...';
+  status.style.color = 'var(--yel)';
+  try {
+    const r = await fetch(`${API}/start`);
+    const d = await r.json();
+    if (d.status === 'started' || d.status === 'already_running') {
+      status.textContent = 'Simulation launched — waiting for SUMO...';
+      status.style.color = 'var(--grn)';
+    } else {
+      status.textContent = 'Start failed: ' + (d.message || 'Unknown error');
+      status.style.color = 'var(--red)';
+      btn.disabled = false;
+      btn.textContent = '▶ START';
+    }
+  } catch(e) {
+    status.textContent = 'Cannot connect to server!';
+    status.style.color = 'var(--red)';
+    btn.disabled = false;
+    btn.textContent = '▶ START';
+  }
+}
+
+// ─── Status Polling ──────────────────────────────────────────────────────────
+async function fetchStatus() {
+  try {
+    const r = await fetch(`${API}/status`);
+    if (!r.ok) throw 0;
+    render(await r.json());
+    setConn(true);
+  } catch { setConn(false); }
+}
+
+function render(d) {
+  document.getElementById('tv').textContent = d.vehicles ?? 0;
+  document.getElementById('aw').textContent = (d.avg_wait_time ?? 0).toFixed(1);
+  document.getElementById('ss').textContent = d.step ?? 0;
+
+  const b = document.getElementById('badge'), bt = document.getElementById('btext');
+  simRunning = !!d.running;
+
+  if (simRunning) {
+    b.className = 'badge on'; bt.textContent = 'RUNNING';
+    document.getElementById('btnStart').disabled = true;
+    document.getElementById('btnStart').textContent = '▶ START';
+    document.getElementById('btnStop').disabled  = false;
+    document.getElementById('simStatus').textContent = `Running — Step ${d.step ?? 0}`;
+    document.getElementById('simStatus').style.color = 'var(--grn)';
+    document.getElementById('emWarn').style.display = 'none';
+  } else {
+    b.className = 'badge off'; bt.textContent = 'OFFLINE';
+    document.getElementById('btnStart').disabled = false;
+    document.getElementById('btnStop').disabled  = true;
+    document.getElementById('simStatus').textContent = 'Simulation not running';
+    document.getElementById('simStatus').style.color = 'var(--mut)';
+  }
+
+  renderJ(d.junction_status || {});
+  renderL(d.tl_details || {});
+  renderV(d.vehicle_list || []);
+  renderE(d.junction_status || {}, d.tl_details || {});
+  renderLog(d.logs || []);
+}
+
+function renderJ(js) {
+  const el = document.getElementById('jg');
+  const ks = Object.keys(js);
+  if (!ks.length) { el.innerHTML = '<div style="color:var(--mut);font-size:12px">No data</div>'; return; }
+  el.innerHTML = ks.map(id => {
+    const j = js[id], c = j.emergency ? 'emergency' : j.status;
+    return `<div class="jcard ${c}">
+      <div class="jcid">${id}</div>
+      <div class="jcv">${j.vehicles} vehicles</div>
+      <div class="jcs">${j.emergency ? '🚑 EMERGENCY' : j.status.toUpperCase()}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderL(tld) {
+  const el = document.getElementById('lp');
+  const tls = Object.keys(tld);
+  if (!tls.length) { el.innerHTML = '<div style="color:var(--mut);font-size:12px">No TLS data yet</div>'; return; }
+  let html = '';
+  for (const tid of tls) {
+    const info = tld[tid];
+    const em = info.emergency_active ? `<span class="embadge">🚑 EMERGENCY</span>` : '';
+    html += `<div style="margin-bottom:10px">
+      <div class="lane-hdr">TLS: ${tid} ${em}
+        <span style="color:var(--mut);font-size:9px">
+          Phase ${info.current_phase ?? '?'} | ${info.phase_state ?? ''} | Green: ${info.green_duration ?? '?'}s
+        </span>
+      </div>
+      <div class="lane-col"><span></span><span>Lane</span><span>Veh</span><span>Alloc</span><span>Steps-G</span><span>Bar</span></div>`;
+    const lanes = info.lanes || [];
+    const maxG = Math.max(...lanes.map(l => l.green_time || 0), 1);
+    for (const ln of lanes) {
+      const sig = ln.signal || 'red';
+      const pct = Math.round(((ln.green_time || 0) / maxG) * 100);
+      const bc = sig === 'green' ? 'var(--grn)' : sig === 'yellow' ? 'var(--yel)' : 'var(--red)';
+      html += `<div class="lane-row ${sig}">
+        <span class="sdot"></span>
+        <span class="lid" title="${ln.lane_id}">${ln.lane_id}</span>
+        <span class="lv">${ln.vehicles}</span>
+        <span class="la">${ln.green_alloc ?? 0}s</span>
+        <span class="lg">${ln.green_time ?? 0}</span>
+        <div class="lbw"><div class="lbar" style="width:${pct}%;background:${bc}"></div></div>
+      </div>`;
+    }
+    html += `</div>`;
+  }
+  el.innerHTML = html;
+}
+
+function renderV(vl) {
+  const el = document.getElementById('vl');
+  if (!vl.length) { el.innerHTML = '<div style="color:var(--mut);font-size:12px">No vehicles</div>'; return; }
+  el.innerHTML = vl.slice(0, 10).map(v =>
+    `<div class="vitem ${v.emergency ? 'em' : ''}">
+      <span class="vid">${v.emergency ? '🚑' : '🚗'} ${v.id}</span>
+      <span class="vwt">${v.wait_time}s ${v.emergency ? '<span style="color:var(--emg);font-size:9px;font-weight:700">●EMG</span>' : ''}</span>
+    </div>`
+  ).join('');
+}
+
+function renderE(js, tld) {
+  const el = document.getElementById('ep');
+  let found = false, html = '';
+  for (const [id, j] of Object.entries(js)) {
+    if (j.emergency) {
+      found = true;
+      html += `<div style="background:#1a0800;border:1px solid var(--emg);border-radius:4px;padding:10px;margin-bottom:8px">
+        <div style="color:var(--emg);font-weight:700;font-size:14px">🚑 EMERGENCY ACTIVE</div>
+        <div style="color:var(--txt);font-size:12px;margin-top:5px">Junction: <strong>${id}</strong></div>
+        <div style="color:var(--mut);font-size:11px;margin-top:4px">
+          Emergency lane → GREEN ✅<br>
+          Other lanes → YELLOW → RED
+        </div>
+      </div>`;
+    }
+  }
+  for (const [id, t] of Object.entries(tld)) {
+    if (t.emergency_active) {
+      found = true;
+      html += `<div style="background:#1a0800;border:1px solid var(--emg);border-radius:4px;padding:10px;margin-bottom:8px">
+        <div style="color:var(--emg);font-weight:700">🚑 TLS OVERRIDE ACTIVE</div>
+        <div style="color:var(--txt);font-size:12px;margin-top:4px">TLS: <strong>${id}</strong></div>
+        <div style="color:var(--mut);font-size:11px;margin-top:4px">
+          Emergency vehicle has signal priority<br>
+          Normal cycle paused
+        </div>
+      </div>`;
+    }
+  }
+  if (!found) {
+    html = `
+      <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+        <div style="width:9px;height:9px;border-radius:50%;background:var(--grn);box-shadow:0 0 7px var(--grn)"></div>
+        <span style="color:var(--grn);font-size:13px;font-weight:700">ALL CLEAR</span>
+      </div>
+      <div style="color:var(--mut);font-size:11px;margin-top:8px">
+        No emergency vehicles detected ✓<br>
+        Rule: Emergency detected → that lane gets GREEN<br>
+        All other lanes → YELLOW → RED
+      </div>`;
+  }
+  el.innerHTML = html;
+}
+
+function renderLog(logs) {
+  const el = document.getElementById('lb');
+  if (!logs.length) { el.innerHTML = 'No logs'; return; }
+  el.innerHTML = logs.map(l => `<span class="l${l.type[0]}">[${l.time}] ${l.message}</span><br>`).join('');
+}
+
+function setConn(ok) {
+  const el = document.getElementById('conn');
+  el.className = ok ? 'on' : 'off';
+  el.textContent = ok ? '✓ CONNECTED' : '⚠ DISCONNECTED';
+}
+
+function api(ep) {
+  fetch(`${API}/${ep}`).catch(() => {});
+  setTimeout(fetchStatus, 400);
+}
+
+// ─── Emergency Spawn ──────────────────────────────────────────────────────────
+function selDir(d) {
+  curDir = d;
+  ['north', 'south', 'east', 'west'].forEach(x =>
+    document.getElementById('dir-' + x).classList.toggle('active', x === d)
+  );
+}
+
+function selVtype(v) {
+  curVtype = v;
+  ['ambulance', 'police', 'firebrigade'].forEach(x =>
+    document.getElementById('vt-' + x).classList.toggle('active', x === v)
+  );
+}
+
+async function doSpawn() {
+  // Check if simulation is running
+  if (!simRunning) {
+    const warn = document.getElementById('emWarn');
+    warn.style.display = 'block';
+    setTimeout(() => { warn.style.display = 'none'; }, 4000);
+    return;
+  }
+
+  const btn = document.getElementById('spawnBtn'), fb = document.getElementById('sfb');
+  btn.disabled = true;
+  btn.textContent = '⏳ Spawning...';
+  fb.textContent = '';
+  try {
+    const r = await fetch(`${API}/spawn_emergency?direction=${curDir}&vtype=${curVtype}`);
+    const d = await r.json();
+    if (d.status === 'ok') {
+      fb.textContent = `✅ ${d.message}`;
+      fb.style.color = 'var(--grn)';
+    } else {
+      fb.textContent = `❌ ${d.message || 'Failed'}`;
+      fb.style.color = 'var(--red)';
+    }
+  } catch {
+    fb.textContent = '❌ Cannot connect to server';
+    fb.style.color = 'var(--red)';
+  }
+  btn.textContent = '🚨 SPAWN EMERGENCY VEHICLE';
+  setTimeout(() => { btn.disabled = false; fb.textContent = ''; }, 3000);
+}
+
+setInterval(fetchStatus, 1000);
+fetchStatus();
+</script>
+</body>
+</html>
