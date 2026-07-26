@@ -160,14 +160,16 @@ python run_system.py
 
 ---
 
-# 👩‍💻 Author
+# 👨‍💻 Developed By
 
-**Sarita Parte**
+**AI Signal OptiSense Project Team**
 
-GitHub:
-https://github.com/Saritaparte
+- Sarita Parte
+- Chetan Patil
+- Sanika Suryavanshi
+- Harshada Sawant
+- Priya More
 
-LinkedIn:
-https://linkedin.com/in/sarita-parte-711455291
+Department of Computer Science & Engineering
 
----
+Academic Year: 2025–2026
