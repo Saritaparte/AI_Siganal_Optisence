@@ -4,14 +4,15 @@
 
 ### AI-Based Smart Traffic Signal Control System
 
-Dynamic Traffic Signal Optimization using **Python**, **SUMO**, **TraCI**, **HTML**, **CSS**, and **JavaScript**
+**Dynamic Traffic Signal Optimization using Artificial Intelligence, Python, SUMO & TraCI**
 
 ![Python](https://img.shields.io/badge/Python-3.10-blue?logo=python)
-![SUMO](https://img.shields.io/badge/SUMO-Simulator-green)
+![SUMO](https://img.shields.io/badge/SUMO-Traffic%20Simulator-green)
 ![TraCI](https://img.shields.io/badge/TraCI-API-orange)
-![HTML](https://img.shields.io/badge/HTML-5-red?logo=html5)
-![CSS](https://img.shields.io/badge/CSS-3-blue?logo=css3)
-![JavaScript](https://img.shields.io/badge/JavaScript-ES6-yellow?logo=javascript)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572B6?logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?logo=javascript&logoColor=black)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 </div>
 
@@ -19,62 +20,71 @@ Dynamic Traffic Signal Optimization using **Python**, **SUMO**, **TraCI**, **HTM
 
 # 📌 Overview
 
-AI Signal OptiSense is an intelligent traffic management system that dynamically adjusts traffic signal timings according to real-time traffic density. The system also provides emergency vehicle priority to minimize response time and improve road efficiency.
+AI Signal OptiSense is an AI-powered Smart Traffic Management System developed as a Final Year B.Tech Computer Science Engineering Group Project.
+
+The system dynamically adjusts traffic signal timings based on real-time traffic density and provides immediate priority to emergency vehicles such as ambulances, police vehicles, and fire brigades. Using **SUMO** and **TraCI**, the project simulates intelligent traffic flow to reduce congestion, minimize waiting time, and improve overall road efficiency.
 
 ---
 
-# ✨ Features
+# ✨ Key Features
 
-- 🚦 Dynamic Traffic Signal Allocation
-- 🚑 Emergency Vehicle Priority
-- 📊 Real-Time Dashboard
-- 📈 Performance Comparison
-- 🚗 Live Vehicle Monitoring
+- 🚦 Dynamic Traffic Signal Optimization
+- 🚑 Emergency Vehicle Priority System
+- 🚗 Real-Time Vehicle Monitoring
+- 📊 Interactive Web Dashboard
+- 📈 Rule-Based vs Fixed Signal Performance Comparison
 - 📉 Traffic Density Analysis
-- 🔄 Automatic Signal Optimization
-- 📁 JSON Metrics Export
+- ⚡ Automatic Signal Timing Adjustment
+- 📁 JSON-Based Metrics Generation
+- 🌐 SUMO Traffic Simulation Integration
 
 ---
 
-# 🛠 Technologies
+# 🛠 Tech Stack
 
-| Technology | Purpose |
-|------------|----------|
-| Python | Backend |
-| SUMO | Traffic Simulation |
-| TraCI | Communication with SUMO |
-| HTML/CSS | Dashboard UI |
-| JavaScript | Live Dashboard |
-| JSON | Metrics Storage |
+| Category | Technologies |
+|-----------|-------------|
+| Programming Language | Python |
+| Traffic Simulator | SUMO |
+| Communication | TraCI |
+| Frontend | HTML5, CSS3, JavaScript |
+| Data Storage | JSON |
+| Version Control | Git & GitHub |
+| IDE | Visual Studio Code |
 
 ---
 
-# 🏗 System Architecture
+# 🏗️ System Architecture
 
 ```text
-SUMO Simulation
-       │
-       ▼
-Traffic Data Collection
-       │
-       ▼
-Python + TraCI Controller
-       │
- ┌───────────────┐
- │ Density Check │
- └───────────────┘
-       │
-       ▼
-Signal Allocation
-       │
-       ▼
-Emergency Priority
-       │
-       ▼
-Dashboard
-       │
-       ▼
-Performance Metrics
+                 +----------------------+
+                 |   SUMO Simulation    |
+                 +----------+-----------+
+                            |
+                            |
+                     Traffic Data
+                            |
+                            ▼
+               +------------------------+
+               | Python + TraCI Engine  |
+               +-----------+------------+
+                           |
+        +------------------+------------------+
+        |                                     |
+        ▼                                     ▼
+ Emergency Vehicle                  Density Detection
+ Detection                           & Signal Logic
+        |                                     |
+        +------------------+------------------+
+                           |
+                           ▼
+                 Signal Controller
+                           |
+                           ▼
+              Real-Time Dashboard (HTML)
+                           |
+                           ▼
+                  Performance Metrics
 ```
 
 ---
@@ -83,22 +93,32 @@ Performance Metrics
 
 ```text
 Start
- ↓
+   │
+   ▼
 Load SUMO Network
- ↓
-Generate Vehicles
- ↓
+   │
+   ▼
+Spawn Vehicles
+   │
+   ▼
 Collect Traffic Density
- ↓
-Emergency Vehicle Detected?
- ↓
-Yes → Priority Green
-No → Density Based Timing
- ↓
+   │
+   ▼
+Emergency Vehicle?
+   │
+ ┌─Yes───────────────┐
+ │                   │
+ ▼                   ▼
+Give Priority      Normal Signal Logic
+ │                   │
+ └──────────┬────────┘
+            ▼
 Update Dashboard
- ↓
-Store Metrics
- ↓
+            │
+            ▼
+Generate Metrics
+            │
+            ▼
 End
 ```
 
@@ -118,45 +138,94 @@ End
 
 ---
 
-## 🚗 SUMO Simulation
+## 🚗 SUMO Traffic Simulation
 
 ![Simulation](screenshots/simulation.jpeg)
 
 ---
 
-## 📈 Performance Comparison
+## 📈 Rule-Based vs Fixed-Time Comparison
 
 ![Comparison](screenshots/comparison.jpeg)
 
 ---
 
-## 📊 Key Performance Metrics
+## 📊 Performance Metrics
 
 ![Metrics](screenshots/metrics.jpeg)
 
 ---
 
-# 📊 Results
+# 📊 Performance Results
 
-| Metric | Rule-Based | Fixed |
-|---------|-----------:|------:|
-| Average Waiting Time | 3.5 sec | 45.2 sec |
-| Throughput | 50.6 | 42.8 |
-| Congestion Score | 44 | 74 |
+| Performance Metric | Rule-Based System | Fixed-Time System |
+|--------------------|-----------------:|------------------:|
+| Average Waiting Time | **3.5 sec** | **45.2 sec** |
+| Vehicle Throughput | **50.6 Vehicles** | **42.8 Vehicles** |
+| Congestion Score | **44** | **74** |
+
+✅ The AI-based traffic signal controller significantly reduced waiting time and congestion while improving traffic throughput.
 
 ---
 
 # 🚀 Installation
 
+Clone the repository
+
 ```bash
 git clone https://github.com/Saritaparte/AI_Siganal_Optisence.git
+```
 
+Go to the project folder
+
+```bash
 cd AI_Siganal_Optisence
+```
 
+Install dependencies
+
+```bash
 pip install -r requirements.txt
+```
 
+Run the project
+
+```bash
 python run_system.py
 ```
+
+---
+
+# 📂 Project Structure
+
+```text
+AI_Siganal_Optisence
+│
+├── dashboard/
+├── sumo/
+├── screenshots/
+├── docs/
+├── run_system.py
+├── dashboard_server.py
+├── rule_based_tls.py
+├── requirements.txt
+├── README.md
+└── LICENSE
+```
+
+---
+
+# 👥 Project Team
+
+This project was developed as a **Final Year B.Tech Computer Science Engineering Group Project**.
+
+| Team Member | Contribution |
+|-------------|--------------|
+| **Sarita Parte** | Python Development, Dashboard Integration & Project Coordination |
+| **Chetan Patil** | SUMO Network Design & Traffic Simulation |
+| **Sanika Suryavanshi** | Frontend Development (HTML, CSS & JavaScript) |
+| **Harshada Sawant** | Testing, Documentation & Performance Evaluation |
+| **Priya More** | Research, Analysis & Project Validation |
 
 ---
 
@@ -164,12 +233,28 @@ python run_system.py
 
 **AI Signal OptiSense Project Team**
 
-- Sarita Parte
-- Chetan Patil
-- Sanika Suryavanshi
-- Harshada Sawant
-- Priya More
-
 Department of Computer Science & Engineering
 
-Academic Year: 2025–2026
+Academic Year: **2025–2026**
+
+---
+
+## 📜 License
+
+This project is licensed under the **MIT License**.
+
+© 2026 AI Signal OptiSense Project Team
+
+---
+
+## ⭐ Support
+
+If you found this project useful, please consider giving this repository a ⭐ on GitHub.
+
+---
+
+<div align="center">
+
+### 🚦 Smart Traffic Today, Safer Roads Tomorrow 🚦
+
+</div>
